@@ -1,3 +1,4 @@
+package U2ACT3AST;
 /**
  * File: TileCalculator.java
  * Author: Lucas Wu
@@ -70,9 +71,9 @@ public class TileCalculator
 
     /**
      * Sets measurement units for length and area
-     * Options: Meters or Feet
-     * Updates static properties in Shape class
-     * @return None - units are set in Shape class
+     * Prompts user to select between meters and feet
+     * Converts existing shape dimensions to new units
+     * @return None - units are updated in Shape class
      */
     private static void setMeasurementUnits() 
     {
@@ -86,18 +87,34 @@ public class TileCalculator
             int intUnitChoice = input.nextInt();
             input.nextLine();  // Consume newline
             
+            // Determine conversion factor
+            double dblConversionFactor = 1.0;
+            if (Shape.strLengthUnit.equals("meters") && intUnitChoice == 2) {
+                dblConversionFactor = 3.28084; // Meters to feet
+            } else if (Shape.strLengthUnit.equals("feet") && intUnitChoice == 1) {
+                dblConversionFactor = 0.3048;   // Feet to meters
+            }
+            
             if(intUnitChoice == 1) 
             {
+                // Convert all existing shapes' dimensions
+                for (Shape shape : arrShapeList) {
+                    shape.convertDimensions(dblConversionFactor);
+                }
+                
                 Shape.strLengthUnit = "meters";
                 Shape.strAreaUnit = "square meters";
-                Shape.dblConversionFactor = 1.0;
                 System.out.println("Measurement units set to meters");
             } 
             else if(intUnitChoice == 2) 
             {
+                // Convert all existing shapes' dimensions
+                for (Shape shape : arrShapeList) {
+                    shape.convertDimensions(dblConversionFactor);
+                }
+                
                 Shape.strLengthUnit = "feet";
                 Shape.strAreaUnit = "square feet";
-                Shape.dblConversionFactor = 0.3048; // 1 foot = 0.3048 meters
                 System.out.println("Measurement units set to feet");
             } 
             else 

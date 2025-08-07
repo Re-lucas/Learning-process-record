@@ -1,3 +1,4 @@
+package U2ACT3AST;
 /**
  * File: Shape.java
  * Author: Lucas Wu
@@ -33,4 +34,17 @@ public abstract class Shape
      */
     @Override
     public abstract String toString();
+
+
+    /**
+     * Sets the unit price for all shapes.
+     * @param dblPrice Price per unit area
+     * @param dblConversionFactor Conversion factor for dimensions
+     * @return True if successful, false otherwise
+     */
+    public void convertDimensions(double dblConversionFactor) {
+        for (int i = 0; i < dblDimensionsArr.length; i++) {
+            dblDimensionsArr[i] *= dblConversionFactor;
+        }
+    }
 }
