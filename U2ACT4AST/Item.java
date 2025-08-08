@@ -1,5 +1,4 @@
 package U2ACT4AST;
-
 /**
  * File: Item.java
  * Author: Lucas Wu
@@ -155,29 +154,87 @@ public class Item {
         return dblCurrentPrice; 
     }
 
+
     /**
-     * Mutator methods
-     * @param strSku - Stock Keeping Unit
-     * @param strName - Item name
-     * @param strCategory - Item category
-     * @param intQuantity - Current stock quantity
-     * @param intMinQuantity - Minimum stock quantity
-     * @param dblVendorPrice - Price from vendor
-     * @param dblMarkupPercentage - Markup percentage
-     * @param dblRegularPrice - Regular selling price
-     * @param dblCurrentDiscount - Current discount on the item
-     * @param dblCurrentPrice - Current selling price after discount
+     * Set SKU
+     * @param strSku - Stock Keeping Unit (format: ABC-1234)
      */
-    public void setSku(String strSku) { this.strSku = strSku; }
-    public void setName(String strName) { this.strName = strName; }
-    public void setCategory(String strCategory) { this.strCategory = strCategory; }
-    public void setQuantity(int intQuantity) { this.intQuantity = intQuantity; }
-    public void setMinQuantity(int intMinQuantity) { this.intMinQuantity = intMinQuantity; }
-    public void setVendorPrice(double dblVendorPrice) { this.dblVendorPrice = dblVendorPrice; }
-    public void setMarkupPercentage(double dblMarkupPercentage) { this.dblMarkupPercentage = dblMarkupPercentage; }
-    public void setRegularPrice(double dblRegularPrice) { this.dblRegularPrice = dblRegularPrice; }
-    public void setCurrentDiscount(double dblCurrentDiscount) { this.dblCurrentDiscount = dblCurrentDiscount; }
-    public void setCurrentPrice(double dblCurrentPrice) { this.dblCurrentPrice = dblCurrentPrice; }
+    public void setSku(String strSku) {
+        this.strSku = strSku;
+    }
+
+    /**
+     * Set item name
+     * @param strName - Name of the item (max 20 characters)
+     */
+    public void setName(String strName) {
+        this.strName = strName;
+    }
+
+    /**
+     * Set category
+     * @param strCategory - Category of the item (e.g., FRUIT, MEAT, VEGETABLE)
+     */
+    public void setCategory(String strCategory) {
+        this.strCategory = strCategory;
+    }
+
+    /**
+     * Set quantity on hand
+     * @param intQuantity - Quantity available in inventory
+     */
+    public void setQuantity(int intQuantity) {
+        this.intQuantity = intQuantity;
+    }
+
+    /**
+     * Set minimum quantity
+     * @param intMinQuantity - Minimum quantity before restocking is required
+     */
+    public void setMinQuantity(int intMinQuantity) {
+        this.intMinQuantity = intMinQuantity;
+    }
+
+    /**
+     * Set vendor price
+     * @param dblVendorPrice - Price from the supplier
+     */
+    public void setVendorPrice(double dblVendorPrice) {
+        this.dblVendorPrice = dblVendorPrice;
+    }
+
+    /**
+     * Set markup percentage
+     * @param dblMarkupPercentage - Percentage added to vendor price
+     */
+    public void setMarkupPercentage(double dblMarkupPercentage) {
+        this.dblMarkupPercentage = dblMarkupPercentage;
+    }
+
+    /**
+     * Set regular price
+     * @param dblRegularPrice - Selling price before discount
+     */
+    public void setRegularPrice(double dblRegularPrice) {
+        this.dblRegularPrice = dblRegularPrice;
+    }
+
+    /**
+     * Set current discount
+     * @param dblCurrentDiscount - Discount percentage off regular price
+     */
+    public void setCurrentDiscount(double dblCurrentDiscount) {
+        this.dblCurrentDiscount = dblCurrentDiscount;
+    }
+
+    /**
+     * Set current price
+     * @param dblCurrentPrice - Final selling price after discount
+     */
+    public void setCurrentPrice(double dblCurrentPrice) {
+        this.dblCurrentPrice = dblCurrentPrice;
+    }
+
 
     /**
      * Returns a CSV string representation of the item
