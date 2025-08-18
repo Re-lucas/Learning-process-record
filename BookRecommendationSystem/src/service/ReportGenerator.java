@@ -9,13 +9,7 @@ import java.util.Map;
 
 import model.Book;
 
-/**
- * File: ReportGenerator.java
- * Author: [团队名称]
- * Date: [当前日期]
- *
- * Description: 管理员报告生成器，提供系统统计和分析功能
- */
+
 public class ReportGenerator 
 {
     private BookDatabase bookDatabase;  
@@ -27,19 +21,17 @@ public class ReportGenerator
         this.userManager  = userManager;
     }
 
-    /**
-     * 生成热门书籍报告
-     */
+
     public String generatePopularBooksReport(int intTopCount) 
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n===== 热门书籍报告 =====\n");
-        sb.append("统计时间: ").append(new Date()).append("\n\n");
+        sb.append("\n===== Report on Popular Books =====\n");
+        sb.append("Statistical time: ").append(new Date()).append("\n\n");
 
         ArrayList<Book> popularBooks = bookDatabase.getPopularBooks(intTopCount);
 
         sb.append(String.format("%-6s %-25s %-15s %-8s %-8s %-12s\n",
-            "排名", "书名",    "作者",  "评分", "借阅量", "状态"));
+            "Ranking", "Title of Book",    "Author",  "Score", "Borrowing volume", "Status"));
         sb.append("------------------------------------------------------------\n");
 
         for (int i = 0; i < popularBooks.size(); i++) 
@@ -51,17 +43,17 @@ public class ReportGenerator
                 truncate(book.getStrAuthor(), 14),
                 book.getDblAvgRating(),
                 book.getIntBorrowCount(),
-                book.isAvailable() ? "可借阅" : "已借出"
+                book.isAvailable() ? "Available for borrowing" : "Lent out"
             ));
         }
 
-        sb.append("\n统计摘要:\n");
-        sb.append("· 总图书数量: ").append(bookDatabase.getAllBooks().size()).append("\n");
+        sb.append("\nStatistical summary:\n");
+        sb.append("· Total number of books ").append(bookDatabase.getAllBooks().size()).append("\n");
         if (!popularBooks.isEmpty()) {
             Book top = popularBooks.get(0);
-            sb.append("· 最热门书籍: ")
+            sb.append("· The most popular books: ")
               .append(top.getStrTitle())
-              .append(" (借阅量: ")
+              .append(" (Borrowing volume: ")
               .append(top.getIntBorrowCount())
               .append(")\n");
         }
@@ -69,14 +61,12 @@ public class ReportGenerator
         return sb.toString();
     }
 
-    /**
-     * 生成作者受欢迎度分析
-     */
+
     public String generateAuthorPopularityReport() 
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n===== 作者受欢迎度分析 =====\n");
-        sb.append("统计时间: ").append(new Date()).append("\n\n");
+        sb.append("\n===== Analysis of author popularity =====\n");
+        sb.append("Statistical time: ").append(new Date()).append("\n\n");
 
         HashMap<String, AuthorStats> statsMap = new HashMap<>();
         for (Book book : bookDatabase.getAllBooks()) 
@@ -101,7 +91,7 @@ public class ReportGenerator
         });
 
         sb.append(String.format("%-20s %-10s %-12s %-10s\n",
-            "作者", "作品数量", "总借阅量", "平均评分"));
+            "Author", "Number of works", "Total borrowing volume", "Average score"));
         sb.append("------------------------------------------------\n");
 
         for (Map.Entry<String, AuthorStats> entry : list) 
@@ -119,14 +109,12 @@ public class ReportGenerator
         return sb.toString();
     }
 
-    /**
-     * 生成分类使用统计报告
-     */
+
     public String generateGenreUsageReport() 
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n===== 图书分类统计 =====\n");
-        sb.append("统计时间: ").append(new Date()).append("\n\n");
+        sb.append("\n===== Book classification statistics =====\n");
+        sb.append("Statistical time: ").append(new Date()).append("\n\n");
 
         HashMap<String, GenreStats> genreMap = new HashMap<>();
         for (Book book : bookDatabase.getAllBooks()) 
@@ -149,7 +137,7 @@ public class ReportGenerator
         });
 
         sb.append(String.format("%-15s %-10s %-12s %-15s\n",
-            "分类", "图书数量", "总借阅量", "平均借阅率"));
+            "Classification", "Quantity of books", "Total borrowing volume", "Average borrowing rate"));
         sb.append("------------------------------------------------\n");
 
         int totalBooks = bookDatabase.getAllBooks().size();
@@ -164,8 +152,8 @@ public class ReportGenerator
                 avgRate
             ));
         }
-
-        sb.append("\n分类占比:\n");
+        
+        sb.append("\nClassification proportion:\n");
         for (Map.Entry<String, GenreStats> entry : list) 
         {
             GenreStats st = entry.getValue();
@@ -181,24 +169,19 @@ public class ReportGenerator
         return sb.toString();
     }
 
-    /**
-     * 生成用户活跃度报告（简化版）
-     */
+
     public String generateUserActivityReport() 
     {
-        return "\n===== 用户活跃度报告 =====\n功能待实现\n";
+        return "\n===== User Activity report =====\nThe function is yet to be realized\n";
     }
 
-    // ===== 辅助方法及内部类 =====
 
-    /** 截断字符串，多余部分用省略号 */
     private String truncate(String s, int maxLen) 
     {
         if (s == null || s.length() <= maxLen) return s == null ? "" : s;
         return s.substring(0, maxLen - 1) + "…";
     }
 
-    /** 重复拼接字符串 count 次 */
     private String repeat(String str, int count) 
     {
         StringBuilder sb = new StringBuilder();
@@ -206,7 +189,6 @@ public class ReportGenerator
         return sb.toString();
     }
 
-    /** 作者统计结构 */
     private static class AuthorStats 
     {
         int intBookCount       = 0;
@@ -214,7 +196,7 @@ public class ReportGenerator
         double dblTotalRating  = 0.0;
     }
 
-    /** 类型统计结构 */
+
     private static class GenreStats 
     {
         int intBookCount        = 0;

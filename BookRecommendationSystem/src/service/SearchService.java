@@ -3,13 +3,6 @@ package service;
 import java.util.ArrayList;
 import model.Book;
 
-/**
- * File: SearchService.java
- * Author: [团队名称]
- * Date: [当前日期]
- *
- * Description: 智能搜索服务，实现模糊搜索和拼写纠正
- */
 public class SearchService 
 {
     private BookDatabase bookDatabase;
@@ -22,9 +15,7 @@ public class SearchService
         buildDictionary();
     }
 
-    /**
-     * 构建搜索词典，只提取标题和作者中的词
-     */
+
     private void buildDictionary() 
     {
         if (!dictionary.isEmpty()) return;
@@ -37,9 +28,6 @@ public class SearchService
         System.out.println("The search dictionary has been constructed: " + dictionary.size() + " entry");
     }
 
-    /**
-     * 拆分并清洗词条，加入词典（去重）
-     */
     private void addToDictionary(String term) 
     {
         if (term == null) return;
@@ -56,9 +44,7 @@ public class SearchService
         }
     }
 
-    /**
-     * 基础模糊搜索：按书名或作者字段匹配子串
-     */
+
     public ArrayList<Book> searchBooks(String query) 
     {
         ArrayList<Book> result = new ArrayList<>();
@@ -76,9 +62,7 @@ public class SearchService
         return result;
     }
 
-    /**
-     * 智能搜索：先尝试拼写纠正，再执行模糊搜索
-     */
+
     public ArrayList<Book> smartSearch(String query) 
     {
         if (query == null) return new ArrayList<>();
@@ -89,10 +73,7 @@ public class SearchService
         return searchBooks(finalQuery);
     }
 
-    /**
-     * 拼写纠正：对每个单词尝试最小编辑距离匹配
-     * @return 纠正后的整句，或 null 表示无需纠正
-     */
+
     public String correctSpelling(String query) 
     {
         String[] words = query.split("\\s+");
@@ -121,9 +102,7 @@ public class SearchService
         return corrected ? sb.toString().trim() : null;
     }
 
-    /**
-     * 在词典中挑选与输入词最接近（编辑距离 ≤2）的词
-     */
+
     private String findClosestWord(String word) 
     {
         if (word.length() <= 2) return null;
@@ -143,9 +122,7 @@ public class SearchService
         return best;
     }
 
-    /**
-     * 计算 Levenshtein 编辑距离
-     */
+
     private int calculateEditDistance(String s1, String s2) 
     {
         int n = s1.length(), m = s2.length();
@@ -168,9 +145,7 @@ public class SearchService
         return dp[n][m];
     }
 
-    /**
-     * 根据前缀生成最多 5 条搜索建议
-     */
+
     public ArrayList<String> generateSuggestions(String partial) 
     {
         ArrayList<String> suggestions = new ArrayList<>();

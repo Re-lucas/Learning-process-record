@@ -7,16 +7,10 @@ import java.util.Comparator;
 import model.Book;
 import util.FileUtils;
 
-/**
- * File: BookDatabase.java
- * Author: [团队名称]
- * Date: [当前日期]
- *
- * Description: 图书数据管理服务，处理加载、搜索、推荐和状态管理
- */
+
 public class BookDatabase 
 {
-    private ArrayList<Book> bookList;  // 内存中的图书列表
+    private ArrayList<Book> bookList; 
 
     public BookDatabase() 
     {
@@ -24,18 +18,14 @@ public class BookDatabase
         loadBooks();  
     }
 
-    /**
-     * 从 CSV 加载图书
-     */
+
     private void loadBooks() 
     {
         bookList = FileUtils.loadBooksFromCSV();
         System.out.println("Loaded " + bookList.size() + " books from database");
     }
 
-    /**
-     * 按 ID 查找图书
-     */
+
     public Book findBookById(String strBookId) 
     {
         for (Book book : bookList) 
@@ -48,9 +38,7 @@ public class BookDatabase
         return null;
     }
 
-    /**
-     * 模糊搜索（标题或作者）
-     */
+
     public ArrayList<Book> searchBooks(String strQuery) 
     {
         ArrayList<Book> result = new ArrayList<>();
@@ -67,15 +55,15 @@ public class BookDatabase
         return result;
     }
 
-    /**
-     * 获取按借阅次数排序的热门图书
-     */
+
     public ArrayList<Book> getPopularBooks(int intCount) 
     {
         ArrayList<Book> sorted = new ArrayList<>(bookList);
-        Collections.sort(sorted, new Comparator<Book>() {
+        Collections.sort(sorted, new Comparator<Book>() 
+        {
             @Override
-            public int compare(Book b1, Book b2) {
+            public int compare(Book b1, Book b2) 
+            {
                 return b2.getIntBorrowCount() - b1.getIntBorrowCount();
             }
         });
@@ -84,9 +72,7 @@ public class BookDatabase
         );
     }
 
-    /**
-     * 获取同类或同作者的相似图书
-     */
+
     public ArrayList<Book> getSimilarBooks(Book bookRefObj, int intCount) 
     {
         ArrayList<Book> result = new ArrayList<>();
@@ -105,13 +91,12 @@ public class BookDatabase
         return result;
     }
 
-    /**
-     * 借阅图书（更新状态并保存）
-     */
+
     public boolean borrowBook(String strBookId) 
     {
         Book book = findBookById(strBookId);
-        if (book == null || !book.isAvailable()) {
+        if (book == null || !book.isAvailable()) 
+        {
             return false;
         }
         book.setAvailable(false);
@@ -120,9 +105,7 @@ public class BookDatabase
         return true;
     }
 
-    /**
-     * 归还图书（更新状态并保存）
-     */
+
     public void returnBook(String strBookId) 
     {
         Book book = findBookById(strBookId);
@@ -133,17 +116,13 @@ public class BookDatabase
         }
     }
 
-    /**
-     * 将当前内存中的图书列表写回 CSV
-     */
+
     public void saveBooks() 
     {
         FileUtils.saveBooksToCSV(bookList);
     }
 
-    /**
-     * 获取所有图书的副本（不允许外部直接修改内部列表）
-     */
+
     public ArrayList<Book> getAllBooks() 
     {
         return new ArrayList<>(bookList);
