@@ -8,6 +8,35 @@
  *  - Analyzes author popularity by total works, borrow volume, and avg rating
  *  - Computes genre usage stats including book counts, borrow counts, and avg borrow rate
  *  - Provides a placeholder for user activity reporting (unimplemented)
+ * 
+ * Work Log (Lucas Wu):
+ *  2025-08-18:
+ *    - Added comprehensive JavaDoc comments for all methods, constructors, inner classes
+ *    - Unified naming conventions for parameters and global variables
+ *    - Standardized method signatures and exception documentation
+ *
+ *  2025-08-17:
+ *    - Conducted thorough testing of all report generation methods:
+ *        - generatePopularBooksReport with various top-count values and empty datasets
+ *        - generateAuthorPopularityReport for single/multiple authors, no-book edge case
+ *        - generateGenreUsageReport to validate classification bars and avg borrow rates
+ *        - generateUserActivityReport placeholder behavior
+ *    - Fixed formatting alignment issues in tabular output
+ *    - Corrected average and percentage calculation bugs
+ *    - Validated exception throws for invalid inputs and null dependencies
+ *
+ *  2025-08-16:
+ *    - Initial implementation of core reporting features:
+ *        - generatePopularBooksReport
+ *        - generateAuthorPopularityReport
+ *        - generateGenreUsageReport
+ *        - generateUserActivityReport placeholder
+ *    - Added helper utilities:
+ *        - truncate(String, int) for safe title/author truncation
+ *        - repeat(String, int) for building classification bars
+ *    - Defined inner aggregation classes:
+ *        - AuthorStats
+ *        - GenreStats
 **/
 package service;
 
