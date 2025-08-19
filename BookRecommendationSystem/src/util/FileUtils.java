@@ -49,8 +49,7 @@ import model.User;
 
 public class FileUtils 
 {
-    private static final String strBaseDir = "/work/data/";  // Base directory for CSV files
-
+    private static final String strBaseDir = "BookRecommendationSystem/src/Work/";  
 
     /**
      * Gets the books.csv file path

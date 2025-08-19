@@ -1,0 +1,11 @@
+username,password,securityQ,securityA,preferences
+user1,pass1,"What is your pet's name?",Fluffy,Fiction
+user2,pass2,"What is your mother's maiden name?",Smith,Science Fiction
+user3,pass3,"What was the name of your first school?",Lincoln,Mystery
+user4,pass4,"What is your favorite color?",Blue,Fantasy
+user5,pass5,"In what city were you born?",Toronto,Non-Fiction
+user6,pass6,"What is your pet's name?",Buddy,Romance
+user7,pass7,"What is your mother's maiden name?",Johnson,Thriller
+user8,pass8,"What was the name of your first school?",Washington,Biography
+user9,pass9,"What is your favorite color?",Green,History
+user10,pass10,"In what city were you born?",Vancouver,Science

@@ -1,0 +1,101 @@
+id,title,author,genre,rating,isAvailable,borrowCount
+B001,Book Title 1,Alice Smith,Fiction,3.6,false,1
+B002,Book Title 2,Bob Johnson,Science Fiction,3.7,true,2
+B003,Book Title 3,Carol Williams,Mystery,3.8,false,3
+B004,Book Title 4,David Jones,Fantasy,3.9,true,4
+B005,Book Title 5,Eve Brown,Non-Fiction,4.0,false,5
+B006,Book Title 6,Frank Garcia,Romance,4.1,true,6
+B007,Book Title 7,Grace Miller,Thriller,4.2,false,7
+B008,Book Title 8,Hank Davis,Biography,4.3,true,8
+B009,Book Title 9,Ivy Rodriguez,History,4.4,false,9
+B010,Book Title 10,Jack Wilson,Science,4.5,true,10
+B011,Book Title 11,Alice Smith,Fiction,3.6,false,11
+B012,Book Title 12,Bob Johnson,Science Fiction,3.7,true,12
+B013,Book Title 13,Carol Williams,Mystery,3.8,false,13
+B014,Book Title 14,David Jones,Fantasy,3.9,true,14
+B015,Book Title 15,Eve Brown,Non-Fiction,3.5,false,15
+B016,Book Title 16,Frank Garcia,Romance,3.6,true,16
+B017,Book Title 17,Grace Miller,Thriller,3.7,false,17
+B018,Book Title 18,Hank Davis,Biography,3.8,true,18
+B019,Book Title 19,Ivy Rodriguez,History,3.9,false,19
+B020,Book Title 20,Jack Wilson,Science,4.0,true,20
+B021,Book Title 21,Alice Smith,Fiction,4.1,false,21
+B022,Book Title 22,Bob Johnson,Science Fiction,4.2,true,22
+B023,Book Title 23,Carol Williams,Mystery,4.3,false,23
+B024,Book Title 24,David Jones,Fantasy,4.4,true,24
+B025,Book Title 25,Eve Brown,Non-Fiction,4.5,false,25
+B026,Book Title 26,Frank Garcia,Romance,3.6,true,26
+B027,Book Title 27,Grace Miller,Thriller,3.7,false,27
+B028,Book Title 28,Hank Davis,Biography,3.8,true,28
+B029,Book Title 29,Ivy Rodriguez,History,3.9,false,29
+B030,Book Title 30,Jack Wilson,Science,4.0,true,30
+B031,Book Title 31,Alice Smith,Fiction,4.1,false,31
+B032,Book Title 32,Bob Johnson,Science Fiction,4.2,true,32
+B033,Book Title 33,Carol Williams,Mystery,4.3,false,33
+B034,Book Title 34,David Jones,Fantasy,4.4,true,34
+B035,Book Title 35,Eve Brown,Non-Fiction,4.5,false,35
+B036,Book Title 36,Frank Garcia,Romance,3.6,true,36
+B037,Book Title 37,Grace Miller,Thriller,3.7,false,37
+B038,Book Title 38,Hank Davis,Biography,3.8,true,38
+B039,Book Title 39,Ivy Rodriguez,History,3.9,false,39
+B040,Book Title 40,Jack Wilson,Science,4.0,true,40
+B041,Book Title 41,Alice Smith,Fiction,4.1,false,41
+B042,Book Title 42,Bob Johnson,Science Fiction,4.2,true,42
+B043,Book Title 43,Carol Williams,Mystery,4.3,false,43
+B044,Book Title 44,David Jones,Fantasy,4.4,true,44
+B045,Book Title 45,Eve Brown,Non-Fiction,4.5,false,45
+B046,Book Title 46,Frank Garcia,Romance,3.6,true,46
+B047,Book Title 47,Grace Miller,Thriller,3.7,false,47
+B048,Book Title 48,Hank Davis,Biography,3.8,true,48
+B049,Book Title 49,Ivy Rodriguez,History,3.9,false,49
+B050,Book Title 50,Jack Wilson,Science,4.0,true,50
+B051,Book Title 51,Alice Smith,Fiction,4.1,false,51
+B052,Book Title 52,Bob Johnson,Science Fiction,4.2,true,52
+B053,Book Title 53,Carol Williams,Mystery,4.3,false,53
+B054,Book Title 54,David Jones,Fantasy,4.4,true,54
+B055,Book Title 55,Eve Brown,Non-Fiction,4.5,false,55
+B056,Book Title 56,Frank Garcia,Romance,3.6,true,56
+B057,Book Title 57,Grace Miller,Thriller,3.7,false,57
+B058,Book Title 58,Hank Davis,Biography,3.8,true,58
+B059,Book Title 59,Ivy Rodriguez,History,3.9,false,59
+B060,Book Title 60,Jack Wilson,Science,4.0,true,60
+B061,Book Title 61,Alice Smith,Fiction,4.1,false,61
+B062,Book Title 62,Bob Johnson,Science Fiction,4.2,true,62
+B063,Book Title 63,Carol Williams,Mystery,4.3,false,63
+B064,Book Title 64,David Jones,Fantasy,4.4,true,64
+B065,Book Title 65,Eve Brown,Non-Fiction,4.5,false,65
+B066,Book Title 66,Frank Garcia,Romance,3.6,true,66
+B067,Book Title 67,Grace Miller,Thriller,3.7,false,67
+B068,Book Title 68,Hank Davis,Biography,3.8,true,68
+B069,Book Title 69,Ivy Rodriguez,History,3.9,false,69
+B070,Book Title 70,Jack Wilson,Science,4.0,true,70
+B071,Book Title 71,Alice Smith,Fiction,4.1,false,71
+B072,Book Title 72,Bob Johnson,Science Fiction,4.2,true,72
+B073,Book Title 73,Carol Williams,Mystery,4.3,false,73
+B074,Book Title 74,David Jones,Fantasy,4.4,true,74
+B075,Book Title 75,Eve Brown,Non-Fiction,4.5,false,75
+B076,Book Title 76,Frank Garcia,Romance,3.6,true,76
+B077,Book Title 77,Grace Miller,Thriller,3.7,false,77
+B078,Book Title 78,Hank Davis,Biography,3.8,true,78
+B079,Book Title 79,Ivy Rodriguez,History,3.9,false,79
+B080,Book Title 80,Jack Wilson,Science,4.0,true,80
+B081,Book Title 81,Alice Smith,Fiction,4.1,false,81
+B082,Book Title 82,Bob Johnson,Science Fiction,4.2,true,82
+B083,Book Title 83,Carol Williams,Mystery,4.3,false,83
+B084,Book Title 84,David Jones,Fantasy,4.4,true,84
+B085,Book Title 85,Eve Brown,Non-Fiction,4.5,false,85
+B086,Book Title 86,Frank Garcia,Romance,3.6,true,86
+B087,Book Title 87,Grace Miller,Thriller,3.7,false,87
+B088,Book Title 88,Hank Davis,Biography,3.8,true,88
+B089,Book Title 89,Ivy Rodriguez,History,3.9,false,89
+B090,Book Title 90,Jack Wilson,Science,4.0,true,90
+B091,Book Title 91,Alice Smith,Fiction,4.1,false,91
+B092,Book Title 92,Bob Johnson,Science Fiction,4.2,true,92
+B093,Book Title 93,Carol Williams,Mystery,4.3,false,93
+B094,Book Title 94,David Jones,Fantasy,4.4,true,94
+B095,Book Title 95,Eve Brown,Non-Fiction,4.5,false,95
+B096,Book Title 96,Frank Garcia,Romance,3.6,true,96
+B097,Book Title 97,Grace Miller,Thriller,3.7,false,97
+B098,Book Title 98,Hank Davis,Biography,3.8,true,98
+B099,Book Title 99,Ivy Rodriguez,History,3.9,false,99
+B100,Book Title 100,Jack Wilson,Science,4.0,true,100
