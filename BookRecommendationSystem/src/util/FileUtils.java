@@ -1,218 +1,438 @@
+/**
+* File: FileUtils.java
+* Author: YE
+* Date: 2025-08-18
+*
+* Description:
+*  - Manages CSV file paths for books, users, and ratings
+*  - Validates CSV format and creates timestamped backups
+*  - Loads Book, User, and Rating data from CSV into ArrayLists
+*  - Saves Book, User, and Rating lists back to CSV (books include backup)
+**/
 package util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import model.Book;
-import model.User;
 import model.Rating;
-
+import model.User;
 
 public class FileUtils 
 {
-    private static final String BASE_DIR = "/work/data/";
-
-    public static String getBookFilePath()   { return BASE_DIR + "books.csv"; }
-    public static String getUserFilePath()   { return BASE_DIR + "users.csv"; }
-    public static String getRatingFilePath() { return BASE_DIR + "ratings.csv"; }
+    private static final String strBaseDir = "/work/data/";  // Base directory for CSV files
 
 
-    public static ArrayList<Book> loadBooksFromCSV() {
+    /**
+     * Gets the books.csv file path
+     * @return - the path to books.csv
+     */ 
+    public static String getBookFilePath()
+    {
+        return strBaseDir + "books.csv";
+    }
+
+
+    /**
+     * Gets the users.csv file path
+     * @return - the path to users.csv
+     */
+    public static String getUserFilePath()
+    {
+        return strBaseDir + "users.csv";
+    }
+
+
+    /**
+     * Gets the ratings.csv file path
+     * @return - the path to ratings.csv
+     */
+    public static String getRatingFilePath()
+    {
+        return strBaseDir + "ratings.csv";
+    }
+
+
+    /**
+     * Loads books from the default CSV
+     * @return - ArrayList<Book> loaded books
+     */
+    public static ArrayList<Book> loadBooksFromCSV()
+    {
         return loadBooksFromCSV(getBookFilePath());
     }
 
-    public static ArrayList<User> loadUsersFromCSV() {
+
+    /**
+     * Loads users from the default CSV
+     * @return - ArrayList<User> loaded users
+     */
+    public static ArrayList<User> loadUsersFromCSV()
+    {
         return loadUsersFromCSV(getUserFilePath());
     }
 
-    public static ArrayList<Rating> loadRatingsFromCSV() {
+
+    /**
+     * Loads ratings from the default CSV
+     * @return - ArrayList<Rating> loaded ratings
+     * @throws IllegalArgumentException if the rating format is invalid
+     */
+    public static ArrayList<Rating> loadRatingsFromCSV()
+    {
         return loadRatingsFromCSV(getRatingFilePath());
     }
 
 
-    public static void saveBooksToCSV(ArrayList<Book> list) {
-        saveBooksToCSV(list, getBookFilePath());
-    }
-
-    public static void saveUsersToCSV(ArrayList<User> list) {
-        saveUsersToCSV(list, getUserFilePath());
-    }
-
-    public static void saveRatingsToCSV(ArrayList<Rating> list) {
-        saveRatingsToCSV(list, getRatingFilePath());
+    /**
+     * Saves books to the default CSV
+     * @param bookList - list of Book objects to save
+     */
+    public static void saveBooksToCSV(ArrayList<Book> bookList)
+    {
+        saveBooksToCSV(bookList, getBookFilePath());
     }
 
 
-    public static boolean backupFile(String path) {
-        File orig = new File(path);
-        if (!orig.exists()) return false;
+    /**
+     * Saves users to the default CSV
+     * @param userList - list of User objects to save
+     */
+    public static void saveUsersToCSV(ArrayList<User> userList)
+    {
+        saveUsersToCSV(userList, getUserFilePath());
+    }
 
-        String ts = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                        .format(new Date());
-        String bak = path.replace(".csv", "_" + ts + ".bak");
 
-        try (
-            BufferedReader br = new BufferedReader(new FileReader(orig));
-            PrintWriter    pw = new PrintWriter(new FileWriter(bak))
-        ) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                pw.println(line);
+    /**
+     * Saves ratings to the default CSV
+     * @param ratingList - list of Rating objects to save
+     * @throws IllegalArgumentException if the rating format is invalid
+     */
+    public static void saveRatingsToCSV(ArrayList<Rating> ratingList)
+    {
+        saveRatingsToCSV(ratingList, getRatingFilePath());
+    }
+
+
+    /**
+     * Creates a timestamped backup of the specified file
+     * @param strPath - path to the file to back up
+     * @return - true if backup succeeded; false if file does not exist
+     * @throws IOException if file read/write fails
+     */
+    public static boolean backupFile(String strPath)
+    {
+        File fileOrig = new File(strPath);  // Original file
+
+        if (!fileOrig.exists())  // File must exist
+        {
+            return false;  
+        }
+
+        String strTimeStamp   = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());  // Timestamp
+        String strBackupPath  = strPath.replace(".csv", "_" + strTimeStamp + ".bak");         // Backup path
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileOrig));  // File reader
+             PrintWriter    pw = new PrintWriter(new FileWriter(strBackupPath))) // File writer
+        {
+            String strLine = null;  // Current line
+
+            while ((strLine = br.readLine()) != null)  // Copy each line
+            {
+                pw.println(strLine);
             }
+
             return true;
-        } catch (IOException e) {
-            System.out.println("Backup failed: " + e.getMessage());
+        }
+        catch (IOException e)  // Backup failure
+        {
+            System.out.println("Backup failed. Please check file permissions.");
             return false;
         }
     }
 
-    public static boolean validateCSVFile(String path, int expectedCols) {
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            int    row = 0;
-            while ((line = br.readLine()) != null) {
-                row++;
-                String[] cols = line.split(",");
-                if (cols.length != expectedCols) {
-                    System.out.println("Format error " + row + " line: " + line);
+
+    /**
+     * Validates that a CSV file has the expected number of columns
+     * @param strPath - path to the CSV file
+     * @param intExpectedCols - expected number of columns per row
+     * @return - true if format is valid; false otherwise
+     * @throws IOException if file read fails
+     */
+    public static boolean validateCSVFile(String strPath, int intExpectedCols)
+    {
+        try (BufferedReader br = new BufferedReader(new FileReader(strPath)))  // File reader
+        {
+            String strLine = null;  
+            int    intRow  = 0;     // Line counter
+
+            while ((strLine = br.readLine()) != null)  // Read rows
+            {
+                intRow++;  
+                String[] strColsArr = strLine.split(",");  // Split columns
+
+                if (strColsArr.length != intExpectedCols)  // Column count mismatch
+                {
+                    System.out.println("Format error at line " + intRow + ".");
                     return false;
                 }
             }
-            return row > 1;
-        } catch (IOException e) {
-            System.out.println("Verification failed: " + e.getMessage());
+
+            return (intRow > 1);  // Must have header + data
+        }
+        catch (IOException e)  // Validation failure
+        {
+            System.out.println("Failed to verify CSV file. Please ensure file exists.");
             return false;
         }
     }
 
 
-    private static ArrayList<Book> loadBooksFromCSV(String path) {
-        if (!validateCSVFile(path, 7)) {
-            System.out.println("The file format of the book is incorrect. Return an empty list");
-            return new ArrayList<>();
+    /**
+     * Internal: loads books from specified CSV path
+     * @param strPath - CSV file path for books
+     * @return - ArrayList<Book> loaded books; empty list if failure
+     */
+    private static ArrayList<Book> loadBooksFromCSV(String strPath)
+    {
+        ArrayList<Book> bookList = new ArrayList<Book>();  // Result list
+
+        if (!validateCSVFile(strPath, 7))  // Verify format
+        {
+            System.out.println("The book CSV format is incorrect.");
+            return bookList;
         }
-        ArrayList<Book> list = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            boolean first = true;
-            while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; }
-                String[] f = line.split(",");
+
+        try (BufferedReader br = new BufferedReader(new FileReader(strPath)))  // File reader
+        {
+            String  strLine      = null;
+            boolean isFirstLine  = true;  // Skip header flag
+
+            while ((strLine = br.readLine()) != null)  // Read rows
+            {
+                if (isFirstLine)  // Skip header row
+                {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                String[] strFieldArr = strLine.split(",");  // Parse fields
+
                 Book book = new Book(
-                    f[0],
-                    f[1],
-                    f[2],
-                    f[3],
-                    Double.parseDouble(f[4]),
-                    Boolean.parseBoolean(f[5]),
-                    Integer.parseInt(f[6])
-                );
-                if (book.validateBook()) list.add(book);
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to load the book: " + e.getMessage());
-        }
-        return list;
-    }
+                    strFieldArr[0],
+                    strFieldArr[1],
+                    strFieldArr[2],
+                    strFieldArr[3],
+                    Double.parseDouble(strFieldArr[4]),
+                    Boolean.parseBoolean(strFieldArr[5]),
+                    Integer.parseInt(strFieldArr[6])
+                );  // Construct Book
 
-    private static ArrayList<User> loadUsersFromCSV(String path) {
-        if (!validateCSVFile(path, 5)) {
-            System.out.println("The user file format is incorrect, and an empty list is returned");
-            return new ArrayList<>();
-        }
-        ArrayList<User> list = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            boolean first = true;
-            while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; }
-                String[] f = line.split(",");
-                User u = new User(f[0], f[1], f[2], f[3]);
-                u.setStrPreferences(f[4]);
-                list.add(u);
+                if (book.validateBook())  // Only add valid books
+                {
+                    bookList.add(book);
+                }
             }
-        } catch (IOException e) {
-            System.out.println("Failed to load the user: " + e.getMessage());
         }
-        return list;
-    }
+        catch (IOException e)  // Loading failure
+        {
+            System.out.println("Failed to load books. Please check the file.");
+        }
 
-    private static ArrayList<Rating> loadRatingsFromCSV(String path) {
-        if (!validateCSVFile(path, 3)) {
-            System.out.println("The format of the scoring file is incorrect, and an empty list is returned");
-            return new ArrayList<>();
-        }
-        ArrayList<Rating> list = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            boolean first = true;
-            while ((line = br.readLine()) != null) {
-                if (first) { first = false; continue; }
-                String[] f = line.split(",");
-                list.add(new Rating(f[0], f[1], Integer.parseInt(f[2])));
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to load the score: " + e.getMessage());
-        }
-        return list;
+        return bookList;  // Return result
     }
 
 
-    private static void saveBooksToCSV(ArrayList<Book> list, String path) {
-        backupFile(path);
-        try (PrintWriter pw = new PrintWriter(new FileWriter(path))) {
-            pw.println("id,title,author,genre,rating,isAvailable,borrowCount");
-            for (Book b : list) {
-                pw.println(String.join(",",
-                    b.getStrId(),
-                    b.getStrTitle(),
-                    b.getStrAuthor(),
-                    b.getStrGenre(),
-                    String.valueOf(b.getDblAvgRating()),
-                    String.valueOf(b.isAvailable()),
-                    String.valueOf(b.getIntBorrowCount())
+    /**
+     * Internal: loads users from specified CSV path
+     * @param strPath - CSV file path for users
+     * @return - ArrayList<User> loaded users; empty list if failure
+     */
+    private static ArrayList<User> loadUsersFromCSV(String strPath)
+    {
+        ArrayList<User> userList = new ArrayList<User>();  // Result list
+
+        if (!validateCSVFile(strPath, 5))  // Verify format
+        {
+            System.out.println("The user CSV format is incorrect.");
+            return userList;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(strPath)))  // File reader
+        {
+            String  strLine      = null;
+            boolean isFirstLine  = true;  // Skip header flag
+
+            while ((strLine = br.readLine()) != null)  // Read rows
+            {
+                if (isFirstLine)  // Skip header row
+                {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                String[] strFieldArr = strLine.split(",");  // Parse fields
+
+                User user = new User(
+                    strFieldArr[0],
+                    strFieldArr[1],
+                    strFieldArr[2],
+                    strFieldArr[3]
+                );  // Construct User
+
+                user.setStrPreferences(strFieldArr[4]);  // Restore preferences
+                userList.add(user);
+            }
+        }
+        catch (IOException e)  // Loading failure
+        {
+            System.out.println("Failed to load users. Please check the file.");
+        }
+
+        return userList;  // Return result
+    }
+
+
+    /**
+     * Internal: loads ratings from specified CSV path
+     * @param strPath - CSV file path for ratings
+     * @return - ArrayList<Rating> loaded ratings; empty list if failure
+     */
+    private static ArrayList<Rating> loadRatingsFromCSV(String strPath)
+    {
+        ArrayList<Rating> ratingList = new ArrayList<Rating>();  // Result list
+
+        if (!validateCSVFile(strPath, 3))  // Verify format
+        {
+            System.out.println("The rating CSV format is incorrect.");
+            return ratingList;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(strPath)))  // File reader
+        {
+            String  strLine      = null;
+            boolean isFirstLine  = true;  // Skip header flag
+
+            while ((strLine = br.readLine()) != null)  // Read rows
+            {
+                if (isFirstLine)  // Skip header row
+                {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                String[] strFieldArr = strLine.split(",");  // Parse fields
+
+                ratingList.add(new Rating(
+                    strFieldArr[0],
+                    strFieldArr[1],
+                    Integer.parseInt(strFieldArr[2])
                 ));
             }
-        } catch (IOException e) {
-            System.out.println("Failed to save the book: " + e.getMessage());
+        }
+        catch (IOException e)  // Loading failure
+        {
+            System.out.println("Failed to load ratings. Please check the file.");
+        }
+
+        return ratingList;  // Return result
+    }
+
+
+    /**
+     * Internal: saves books list to a specified CSV path
+     * @param bookList - the list of Book objects
+     * @param strPath  - the file path to write
+     */
+    private static void saveBooksToCSV(ArrayList<Book> bookList, String strPath)
+    {
+        backupFile(strPath);  // Backup existing file
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(strPath)))  // File writer
+        {
+            pw.println("id,title,author,genre,rating,isAvailable,borrowCount");  // Header
+
+            for (Book book : bookList)  // Write rows
+            {
+                pw.println(String.join(",",
+                    book.getStrId(),
+                    book.getStrTitle(),
+                    book.getStrAuthor(),
+                    book.getStrGenre(),
+                    String.valueOf(book.getDblAvgRating()),
+                    String.valueOf(book.isAvailable()),
+                    String.valueOf(book.getIntBorrowCount())
+                ));
+            }
+        }
+        catch (IOException e)  // Write failure
+        {
+            System.out.println("Failed to save books. Please check file permissions.");
         }
     }
 
 
+    /**
+     * Internal: saves users list to a specified CSV path
+     * @param userList - the list of User objects
+     * @param strPath - the file path to write
+     */
+    private static void saveUsersToCSV(ArrayList<User> userList, String strPath)
+    {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(strPath)))  // File writer
+        {
+            pw.println("username,password,securityQ,securityA,preferences");  // Header
 
-    private static void saveUsersToCSV(ArrayList<User> list, String path) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(path))) {
-            pw.println("username,password,securityQ,securityA,preferences");
-            for (User u : list) {
+            for (User user : userList)  // Write rows
+            {
                 pw.println(String.join(",",
-                    u.getStrUsername(),
-                    u.getStrPassword(),
-                    u.getStrSecurityQ(),
-                    u.getStrSecurityA(),
-                    u.getStrPreferences()
+                    user.getStrUsername(),
+                    user.getStrPassword(),
+                    user.getStrSecurityQ(),
+                    user.getStrSecurityA(),
+                    user.getStrPreferences()
                 ));
             }
-        } catch (IOException e) {
-            System.out.println("Failed to save the user: " + e.getMessage());
+        }
+        catch (IOException e)  // Write failure
+        {
+            System.out.println("Failed to save users. Please check file permissions.");
         }
     }
 
 
+    /**
+     * Internal: saves ratings list to a specified CSV path
+     * @param ratingList - the list of Rating objects
+     * @param strPath - the file path to write
+     * @throws IllegalArgumentException if the rating format is invalid
+     */
+    private static void saveRatingsToCSV(ArrayList<Rating> ratingList, String strPath)
+    {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(strPath)))  // File writer
+        {
+            pw.println("user_id,book_id,rating");  // Header
 
-    private static void saveRatingsToCSV(ArrayList<Rating> list, String path) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(path))) {
-            pw.println("user_id,book_id,rating");
-            for (Rating r : list) {
+            for (Rating rating : ratingList)  // Write rows
+            {
                 pw.println(String.join(",",
-                    r.getStrUserId(),
-                    r.getStrBookId(),
-                    String.valueOf(r.getIntRating())
+                    rating.getStrUserId(),
+                    rating.getStrBookId(),
+                    String.valueOf(rating.getIntRating())
                 ));
             }
-        } catch (IOException e) {
-            System.out.println("Failed to save the score: " + e.getMessage());
+        }
+        catch (IOException e)  // Write failure
+        {
+            System.out.println("Failed to save ratings. Please check file permissions.");
         }
     }
 }

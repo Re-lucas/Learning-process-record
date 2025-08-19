@@ -1,3 +1,14 @@
+/**
+ * File: Main.java
+ * Author: YE
+ * Date: 2025-08-18
+ *
+ * Description:
+ *  - Serves as the command-line interface for the Book Recommendation System.
+ *  - Manages user authentication, registration, and password recovery.
+ *  - Displays distinct menus and workflows for regular users versus administrators.
+ *  - Delegates search, recommendation, borrowing, and reporting tasks to dedicated services.
+ */
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -9,25 +20,47 @@ import service.RecommendationEngine;
 import service.SearchService;
 import service.ReportGenerator;
 
-
 public class Main 
 {
-    private UserManager       userManager;
-    private BookDatabase      bookDatabase;
-    private RecommendationEngine recommendationEngine;
-    private SearchService     searchService;
-    private ReportGenerator   reportGenerator;
+    // Manages user accounts and authentication
+    private UserManager userManager;
 
-    private User    currentUserObj;   
+    // Stores and retrieves book records
+    private BookDatabase bookDatabase;
+
+    // Generates personalized recommendations
+    private RecommendationEngine recommendationEngine;
+
+    // Provides keyword-based book search
+    private SearchService searchService;
+
+    // Produces various analytical reports
+    private ReportGenerator reportGenerator;
+
+    // Holds the currently logged-in user (null if none)
+    private User currentUserObj;
+
+    // Flag to indicate if the current session is an administrator
     private boolean isAdminFlag = false;
 
-    private Scanner scanner = new Scanner(System.in);
+    // Reads input from the command line
+    private Scanner input = new Scanner(System.in);
 
+    /**
+     * Program entry point.
+     * Instantiates Main and starts the run loop.
+     */
     public static void main(String[] args) 
     {
         new Main().run();
     }
 
+
+    /**
+     * Main application loop.
+     * Initializes system components and displays the welcome screen.
+     * Handles user login, registration, and menu navigation.
+     */
     public void run() 
     {
         initializeSystem();
@@ -45,22 +78,38 @@ public class Main
         }
     }
 
+
+    /**
+     * Initializes all system components:
+     *  - UserManager for user accounts
+     */
     private void initializeSystem() 
     {
-        userManager         = new UserManager();
-        bookDatabase        = new BookDatabase();
-        recommendationEngine= new RecommendationEngine(bookDatabase);
-        searchService       = new SearchService(bookDatabase);
-        reportGenerator     = new ReportGenerator(bookDatabase, userManager);
-        currentUserObj      = null;
+        userManager          = new UserManager();
+        bookDatabase         = new BookDatabase();
+        recommendationEngine = new RecommendationEngine(bookDatabase);
+        searchService        = new SearchService(bookDatabase);
+        reportGenerator      = new ReportGenerator(bookDatabase, userManager);
+        currentUserObj       = null;
+        isAdminFlag          = false;
     }
 
+
+    /**
+     * Displays the welcome screen with system title and description.
+     * Provides a brief introduction to the Book Recommendation System.
+     */
     private void showWelcomeScreen() 
     {
         System.out.println("\n\n===== Book Recommendation System =====");
         System.out.println("   Wise Reading · Personality Discovery\n");
     }
 
+
+    /**
+     * Displays the login menu with options for:
+     *  - User login
+     */
     private void showLoginMenu() 
     {
         System.out.println("--- Main menu ---");
@@ -69,9 +118,10 @@ public class Main
         System.out.println("3. Forget the password");
         System.out.println("4. Exit the system");
         int choice = readInt("Please select the operation: ", 1, 4);
+
         switch (choice) 
         {
-            case 1: loginUser();    break;
+            case 1: loginUser(); break;
             case 2: registerUser(); break;
             case 3: recoverPassword(); break;
             case 4:
@@ -80,11 +130,18 @@ public class Main
         }
     }
 
+
+    /**
+     * Prompts for username and password, authenticates the user.
+     * If successful, sets currentUserObj and isAdminFlag.
+     * If admin credentials are entered, grants admin access.
+     */
     private void loginUser() 
     {
         String user = readInputLine("User name: ");
         String pwd  = readInputLine("Password: ");
 
+        // Hardcoded administrator credentials
         if ("admin".equals(user) && "admin123".equals(pwd)) 
         {
             currentUserObj = new User("admin", "admin123", "", "");
@@ -93,16 +150,23 @@ public class Main
             return;
         }
 
+        // Regular user login
         User u = userManager.loginUser(user, pwd);
         if (u == null) {
             System.out.println("Login failed: Incorrect username or password");
         } else {
             currentUserObj = u;
             isAdminFlag    = false;
-            System.out.println("Welcome back" + user + "!");
+            System.out.println("Welcome back " + user + "!");
         }
     }
 
+
+    /**
+     * Registers a new user with username, password, security question, and answer.
+     * If successful, adds to user list and persists to CSV.
+     * If username already exists, informs the user.
+     */
     private void registerUser() 
     {
         System.out.println("\n--- New user registration ---");
@@ -118,21 +182,30 @@ public class Main
         }
     }
 
+
+    /**
+     * Prompts for username and security answer to recover password.
+     * If successful, resets the password and informs the user.
+     */
     private void recoverPassword() 
     {
         System.out.println("\n--- Password recovery ---");
         String user = readInputLine("User name: ");
-        String a    = readInputLine("Answers to safety questions: ");
+        String a    = readInputLine("Answer to safety question: ");
 
         String newPwd = userManager.recoverPassword(user, a);
         if (newPwd != null) {
-            System.out.println("The password has been reset! New password" + newPwd);
+            System.out.println("The password has been reset! New password: " + newPwd);
             System.out.println("Please change your password as soon as possible after logging in");
         } else {
             System.out.println("Recovery failed: The username or answer is incorrect");
         }
     }
 
+    /**
+     * Displays the regular user menu with options for search, popular books,
+     * personalized recommendations, borrowing, and logout.
+     */
     private void showUserMenu() 
     {
         System.out.println("\n--- User Menu ---");
@@ -147,11 +220,11 @@ public class Main
 
         switch (choice) 
         {
-            case 1: doSearch();      break;
-            case 2: showPopular();   break;
+            case 1: doSearch(); break;
+            case 2: showPopular(); break;
             case 3: showRecommendations(); break;
             case 4: System.out.println("Functions to be expanded"); break;
-            case 5: doBorrow();      break;
+            case 5: doBorrow(); break;
             case 6: System.out.println("Functions to be expanded"); break;
             case 7:
                 currentUserObj = null;
@@ -159,6 +232,10 @@ public class Main
         }
     }
 
+    /**
+     * Displays the administrator menu for generating various reports.
+     * Options include popular books, author stats, genre stats, and user activity.
+     */
     private void showAdminMenu() 
     {
         System.out.println("\n--- Administrator Console ---");
@@ -172,49 +249,74 @@ public class Main
 
         switch (choice) 
         {
-            case 1: System.out.println(reportGenerator.generatePopularBooksReport(10)); break;
-            case 2: System.out.println(reportGenerator.generateAuthorPopularityReport()); break;
-            case 3: System.out.println(reportGenerator.generateGenreUsageReport()); break;
-            case 4: System.out.println(reportGenerator.generateUserActivityReport()); break;
-            case 5: System.out.println("The export function is yet to be implemented"); break;
+            case 1:
+                System.out.println(reportGenerator.generatePopularBooksReport(10));
+                break;
+            case 2:
+                System.out.println(reportGenerator.generateAuthorPopularityReport());
+                break;
+            case 3:
+                System.out.println(reportGenerator.generateGenreUsageReport());
+                break;
+            case 4:
+                System.out.println(reportGenerator.generateUserActivityReport());
+                break;
+            case 5:
+                System.out.println("The export function is yet to be implemented");
+                break;
             case 6:
                 currentUserObj = null;
                 isAdminFlag    = false;
         }
     }
 
+    /**
+     * Prompts for a keyword, performs a smart search, and lists matching books.
+     */
     private void doSearch() 
     {
         String kw = readInputLine("Enter keywords: ");
         ArrayList<Book> list = searchService.smartSearch(kw);
+
         System.out.println("Found " + list.size() + " books:");
         for (Book b : list) {
             System.out.println("  - " + b);
         }
     }
 
+    /**
+     * Retrieves and prints the top N popular books from the database.
+     */
     private void showPopular() 
     {
         var list = bookDatabase.getPopularBooks(10);
+
         System.out.println("TOP10 Popular Books");
         for (Book b : list) {
             System.out.println("  - " + b);
         }
     }
 
+    /**
+     * Generates personalized recommendations for the current user and prints them.
+     */
     private void showRecommendations() 
     {
         var list = recommendationEngine.generateRecommendations(
             currentUserObj.getStrUsername(), 5);
+
         System.out.println("For your recommendation:");
         for (Book b : list) {
             System.out.println("  - " + b);
         }
     }
 
+    /**
+     * Handles borrowing a book by ID. Upon success, captures user rating.
+     */
     private void doBorrow() 
     {
-        String id = readInputLine("Enter the ID of the book you want to borrow ");
+        String id = readInputLine("Enter the ID of the book you want to borrow: ");
         if (bookDatabase.borrowBook(id)) {
             int rate = readInt("Your rating (1-5): ", 1, 5);
             recommendationEngine.addRating(currentUserObj.getStrUsername(), id, rate);
@@ -224,7 +326,15 @@ public class Main
         }
     }
 
-
+    /**
+     * Reads an integer from the console within the specified bounds.
+     * Re-prompts until a valid integer is entered.
+     *
+     * @param prompt message to display
+     * @param min    inclusive lower bound
+     * @param max    inclusive upper bound
+     * @return validated integer
+     */
     private int readInt(String prompt, int min, int max) 
     {
         while (true) 
@@ -232,9 +342,10 @@ public class Main
             try 
             {
                 System.out.print(prompt);
-                int v = Integer.parseInt(scanner.nextLine());
+                int v = Integer.parseInt(input.nextLine());
                 if (v >= min && v <= max) return v;
-                System.out.println("Please enter " + min + " to " + max + " numbers between them");
+
+                System.out.println("Please enter a number between " + min + " and " + max);
             } 
             catch (NumberFormatException e) 
             {
@@ -243,9 +354,15 @@ public class Main
         }
     }
 
+    /**
+     * Reads a line of text from the console, trims leading/trailing whitespace.
+     *
+     * @param prompt message to display
+     * @return user input string
+     */
     private String readInputLine(String prompt) 
     {
         System.out.print(prompt);
-        return scanner.nextLine().trim();
+        return input.nextLine().trim();
     }
 }

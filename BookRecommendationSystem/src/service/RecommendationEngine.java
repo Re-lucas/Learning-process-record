@@ -1,3 +1,38 @@
+/**
+ * File: RecommendationEngine.java
+ * Author: Lucas Wu
+ * Date: 2025-08-18
+ *
+ * Description:
+ *  - Loads existing user ratings from CSV on initialization
+ *  - Generates personalized book recommendations based on:
+ *      - User's preferred genre and author
+ *      - Book average rating
+ *      - Book popularity (borrow count)
+ *  - Persists new or updated ratings back to CSV and updates book average ratings
+ *  - Allows dynamic adjustment of recommendation weights for fine-tuning
+ * 
+ * Work Log (Lucas Wu):
+ *  2025-08-18:
+ *    - Added comprehensive JavaDoc comments for all methods
+ *    - Refactored variable names to improve code clarity and consistency
+ *    - Enhanced documentation of recommendation algorithm
+ *  
+ *  2025-08-17:
+ *    - Debugged and optimized recommendation algorithm
+ *    - Implemented rating persistence and book rating updates
+ *    - Added dynamic weight adjustment functionality
+ *    - Conducted thorough testing to ensure correct operation
+ *  
+ *  2025-08-16:
+ *    - Initial implementation of core recommendation engine:
+ *        • Personalized recommendation generation
+ *        • User rating management system
+ *        • Preference calculation (genre/author)
+ *        • Book scoring algorithm
+ *        • Weight-based recommendation tuning
+ * 
+**/
 package service;
 
 import java.util.ArrayList;
@@ -11,69 +46,96 @@ import model.Book;
 import model.Rating;
 import util.FileUtils;
 
-
 public class RecommendationEngine 
 {
-    private BookDatabase bookDatabase;
-    private List<Rating> ratingList;
+    private BookDatabase bookDatabase;      // Source of book data
+    private List<Rating> ratingList;        // All user ratings
 
-    private double dblGenreWeight      = 0.4;
-    private double dblAuthorWeight     = 0.3;
-    private double dblRatingWeight     = 0.2;
-    private double dblPopularityWeight = 0.1;
+    private double dblGenreWeight      = 0.4;  // Weight for matching genre
+    private double dblAuthorWeight     = 0.3;  // Weight for matching author
+    private double dblRatingWeight     = 0.2;  // Weight for book's average rating
+    private double dblPopularityWeight = 0.1;  // Weight for borrow count popularity
 
+
+    /**
+     * Constructs the recommendation engine and loads ratings
+     * @param bookDatabase - the BookDatabase instance to use
+     */
     public RecommendationEngine(BookDatabase bookDatabase) 
     {
         this.bookDatabase = bookDatabase;
-        this.ratingList   = FileUtils.loadRatingsFromCSV();
+        this.ratingList   = FileUtils.loadRatingsFromCSV();  // Load ratings from storage
         System.out.println("Loaded " + ratingList.size() + " ratings");
     }
 
 
+    /**
+     * Generates top-N book recommendations for a user
+     * @param strUserId - the user's unique identifier
+     * @param intCount - the maximum number of recommendations
+     * @return - list of recommended books
+     */
     public List<Book> generateRecommendations(String strUserId, int intCount) 
     {
-        List<Rating> userRatings = getUserRatings(strUserId);
-        if (userRatings.isEmpty()) {
-            return bookDatabase.getPopularBooks(intCount);
+        List<Rating> userRatingList = getUserRatings(strUserId);  // Fetch user's past ratings
+
+        if (userRatingList.isEmpty())  // Cold start: no history
+        {
+            return bookDatabase.getPopularBooks(intCount);  // Fallback to popular books
         }
 
-        String prefGenre  = calculatePreferredGenre(userRatings);
-        String prefAuthor = calculatePreferredAuthor(userRatings);
+        String strPrefGenre  = calculatePreferredGenre(userRatingList);
+        String strPrefAuthor = calculatePreferredAuthor(userRatingList);
 
-        Map<Book, Double> scoreMap = new HashMap<>();
+        Map<Book, Double> mapScoreByBook = new HashMap<Book, Double>();  // Scoring map
+
         for (Book book : bookDatabase.getAllBooks()) 
         {
-            if (hasRatedBook(userRatings, book.getStrId())) continue;
-            double score = calculateMatchScore(book, prefGenre, prefAuthor);
-            scoreMap.put(book, score);
+            if (hasRatedBook(userRatingList, book.getStrId()))  // Skip already rated
+            {
+                continue;
+            }
+
+            double dblScore = calculateMatchScore(book, strPrefGenre, strPrefAuthor);
+            mapScoreByBook.put(book, dblScore);
         }
 
-        return sortBooksByScore(scoreMap, intCount);
+        return sortBooksByScore(mapScoreByBook, intCount);
     }
 
 
+    /**
+     * Adds or updates a user's rating and persists it
+     * @param strUserId the user's unique identifier
+     * @param strBookId the book's unique identifier
+     * @param intRating the new rating (1–5)
+     */
     public void addRating(String strUserId, String strBookId, int intRating) 
     {
-        ratingList.removeIf(r ->
-            r.getStrUserId().equals(strUserId) &&
-            r.getStrBookId().equals(strBookId)
-        );
+        ratingList.removeIf(rating -> 
+            rating.getStrUserId().equals(strUserId) 
+            && rating.getStrBookId().equals(strBookId)
+        );  // Remove any existing rating for this user/book
 
-        ratingList.add(new Rating(strUserId, strBookId, intRating));
-        FileUtils.saveRatingsToCSV(new ArrayList<>(ratingList));
+        ratingList.add(new Rating(strUserId, strBookId, intRating));  // Add new rating
+        FileUtils.saveRatingsToCSV(new ArrayList<Rating>(ratingList));  // Persist to CSV
 
-        updateBookRating(strBookId);
+        updateBookRating(strBookId);  // Recalculate book's average rating
     }
 
 
+    /**
+     * Adjusts recommendation weights up or down by a fixed delta
+     * @param isPositive - true to increase genre/author weights; false to decrease
+     */
     public void adjustWeights(boolean isPositive) 
     {
-        double delta = isPositive ? 0.05 : -0.05;
-        dblGenreWeight      = clamp(dblGenreWeight + delta,  0.1, 0.6);
-        dblAuthorWeight     = clamp(dblAuthorWeight + delta, 0.1, 0.5);
+        double dblDelta = isPositive ? 0.05 : -0.05;  // Direction of adjustment
+        dblGenreWeight  = clamp(dblGenreWeight + dblDelta,  0.1, 0.6);  // Clamp bounds
+        dblAuthorWeight = clamp(dblAuthorWeight + dblDelta, 0.1, 0.5);
 
-        double total = dblGenreWeight + dblAuthorWeight + dblRatingWeight + dblPopularityWeight;
-        dblRatingWeight     = (dblRatingWeight / total)     * (1 - dblGenreWeight - dblAuthorWeight);
+        double dblTotal = dblGenreWeight + dblAuthorWeight + dblRatingWeight + dblPopularityWeight;
+        dblRatingWeight     = (dblRatingWeight / dblTotal)     * (1 - dblGenreWeight - dblAuthorWeight);
         dblPopularityWeight = 1 - dblGenreWeight - dblAuthorWeight - dblRatingWeight;
 
         System.out.println(String.format(
@@ -83,124 +145,233 @@ public class RecommendationEngine
     }
 
 
-
-    private double calculateMatchScore(Book book, String genre, String author) 
+    /**
+     * Calculates the match score for a book based on multiple factors
+     * @param book the Book to score
+     * @param strPrefGenre - the user's preferred genre
+     * @param strPrefAuthor - the user's preferred author
+     * @return - combined match score (higher is better)
+     */
+    private double calculateMatchScore(Book book, String strPrefGenre, String strPrefAuthor) 
     {
-        double score = 0.0;
-        if (book.getStrGenre().equals(genre))   score += dblGenreWeight;
-        if (book.getStrAuthor().equals(author)) score += dblAuthorWeight;
+        double dblScore = 0.0;  // Accumulator
 
-        score += (book.getDblAvgRating() / 5.0) * dblRatingWeight;
-
-        int maxBorrow = bookDatabase.getAllBooks()
-                                    .stream()
-                                    .mapToInt(Book::getIntBorrowCount)
-                                    .max()
-                                    .orElse(1);
-        score += ((double) book.getIntBorrowCount() / maxBorrow) * dblPopularityWeight;
-
-        return score;
-    }
-
-    private String calculatePreferredGenre(List<Rating> userRatings) 
-    {
-        Map<String, Integer> count = new HashMap<>();
-        for (Rating r : userRatings) 
+        if (book.getStrGenre().equals(strPrefGenre))    // Genre match
         {
-            if (r.getIntRating() < 4) continue;
-            Book b = bookDatabase.findBookById(r.getStrBookId());
-            if (b != null) 
-            {
-                count.merge(b.getStrGenre(), 1, Integer::sum);
-            }
+            dblScore += dblGenreWeight;
         }
-        return maxKey(count);
-    }
 
-    private String calculatePreferredAuthor(List<Rating> userRatings) 
-    {
-        Map<String, Integer> count = new HashMap<>();
-        for (Rating r : userRatings) 
+        if (book.getStrAuthor().equals(strPrefAuthor))  // Author match
         {
-            if (r.getIntRating() < 4) continue;
-            Book b = bookDatabase.findBookById(r.getStrBookId());
-            if (b != null) 
-            {
-                count.merge(b.getStrAuthor(), 1, Integer::sum);
-            }
+            dblScore += dblAuthorWeight;
         }
-        return maxKey(count);
+
+        dblScore += (book.getDblAvgRating() / 5.0) * dblRatingWeight;  // Normalized rating
+
+        int intMaxBorrow = bookDatabase.getAllBooks()
+                                       .stream()
+                                       .mapToInt(Book::getIntBorrowCount)
+                                       .max()
+                                       .orElse(1);  // Avoid division by zero
+
+        dblScore += ((double) book.getIntBorrowCount() / intMaxBorrow) * dblPopularityWeight;  // Popularity
+
+        return dblScore;
     }
 
-    private List<Rating> getUserRatings(String userId) 
+
+    /**
+     * Determines the user's most frequently high-rated genre
+     * @param listRatings the user's past ratings
+     * @return genre string with highest count; "Unknown" if none
+     */
+    private String calculatePreferredGenre(List<Rating> listRatings) 
     {
-        List<Rating> list = new ArrayList<>();
-        for (Rating r : ratingList) {
-            if (r.getStrUserId().equals(userId)) 
+        Map<String, Integer> mapCount = new HashMap<String, Integer>();  // Genre → count
+
+        for (Rating rating : listRatings) 
+        {
+            if (rating.getIntRating() < 4)  // Only consider positive ratings
             {
-                list.add(r);
+                continue;
+            }
+
+            Book book = bookDatabase.findBookById(rating.getStrBookId());
+
+            if (book != null) 
+            {
+                mapCount.merge(book.getStrGenre(), 1, Integer::sum);  // Increment
             }
         }
-        return list;
+
+        return maxKey(mapCount);
     }
 
-    private boolean hasRatedBook(List<Rating> ratings, String bookId) 
+
+    /**
+     * Determines the user's most frequently high-rated author
+     * @param listRatings - the user's past ratings
+     * @return - author string with highest count; "Unknown" if none
+     */
+    private String calculatePreferredAuthor(List<Rating> listRatings) 
     {
-        for (Rating r : ratings) {
-            if (r.getStrBookId().equals(bookId)) 
+        Map<String, Integer> mapCount = new HashMap<String, Integer>();  // Author → count
+
+        for (Rating rating : listRatings) 
+        {
+            if (rating.getIntRating() < 4)  // Only consider positive ratings
+            {
+                continue;
+            }
+
+            Book book = bookDatabase.findBookById(rating.getStrBookId());
+
+            if (book != null) 
+            {
+                mapCount.merge(book.getStrAuthor(), 1, Integer::sum);  // Increment
+            }
+        }
+
+        return maxKey(mapCount);
+    }
+
+
+    /**
+     * Filters the complete rating list for a specific user
+     * @param strUserId - the user's unique identifier
+     * @return - list of this user's ratings
+     */
+    private List<Rating> getUserRatings(String strUserId) 
+    {
+        List<Rating> listResult = new ArrayList<Rating>();  // User's ratings
+
+        for (Rating rating : ratingList) 
+        {
+            if (rating.getStrUserId().equals(strUserId)) 
+            {
+                listResult.add(rating);
+            }
+        }
+
+        return listResult;
+    }
+
+
+    /**
+     * Checks whether the user already rated a given book
+     * @param - listRatings the user's ratings
+     * @param - strBookId the book's unique identifier
+     * @return - true if found; false otherwise
+     */
+    private boolean hasRatedBook(List<Rating> listRatings, String strBookId) 
+    {
+        for (Rating rating : listRatings) 
+        {
+            if (rating.getStrBookId().equals(strBookId))  // Match found
             {
                 return true;
             }
         }
+
         return false;
     }
 
-    private List<Book> sortBooksByScore(Map<Book, Double> map, int count) 
-    {
-        List<Map.Entry<Book, Double>> entries = new ArrayList<>(map.entrySet());
-        entries.sort(Map.Entry.<Book, Double>comparingByValue(Comparator.reverseOrder()));
 
-        List<Book> top = new ArrayList<>();
-        for (int i = 0; i < Math.min(count, entries.size()); i++) 
+    /**
+     * Sorts books by score descending and returns top N
+     * @param mapScoreByBook - map of Book to score
+     * @param intCount - max number of books to return
+     * @return - list of top-scoring books
+     */
+    private List<Book> sortBooksByScore(Map<Book, Double> mapScoreByBook, int intCount) 
+    {
+        List<Map.Entry<Book, Double>> listEntries = 
+            new ArrayList<Map.Entry<Book, Double>>(mapScoreByBook.entrySet());
+
+        Collections.sort(listEntries, new Comparator<Map.Entry<Book, Double>>() 
         {
-            top.add(entries.get(i).getKey());
+            @Override
+            public int compare(Map.Entry<Book, Double> e1, Map.Entry<Book, Double> e2) 
+            {
+                return Double.compare(e2.getValue(), e1.getValue());  // Descending
+            }
+        });
+
+        List<Book> listTop = new ArrayList<Book>();  // Top results
+
+        for (int intI = 0; intI < Math.min(intCount, listEntries.size()); intI++) 
+        {
+            listTop.add(listEntries.get(intI).getKey());
         }
-        return top;
+
+        return listTop;
     }
 
-    private String maxKey(Map<String, Integer> map) 
+
+    /**
+     * Retrieves the key with the highest integer value in the map
+     * @param mapCount - the map of keys to counts
+     * @return - key string with max count; "Unknown" if map empty
+     */
+    private String maxKey(Map<String, Integer> mapCount) 
     {
-        return map.entrySet()
-                  .stream()
-                  .max(Map.Entry.comparingByValue())
-                  .map(Map.Entry::getKey)
-                  .orElse("Unknown");
+        return mapCount.entrySet()
+                       .stream()
+                       .max(Map.Entry.comparingByValue())
+                       .map(Map.Entry::getKey)
+                       .orElse("Unknown");
     }
 
+
+    /**
+     * Clamps a value within the inclusive range [min, max]
+     * @param v - the value to clamp
+     * @param min - the lower bound
+     * @param max - the upper bound
+     * @return - clamped value
+     */
     private double clamp(double v, double min, double max) 
     {
-        return v < min ? min : (v > max ? max : v);
+        if (v < min)  // Below lower bound
+        {
+            return min;
+        }
+        else if (v > max)  // Above upper bound
+        {
+            return max;
+        }
+
+        return v;  // Within range
     }
 
-    private void updateBookRating(String bookId) 
+
+    /**
+     * Updates a book's average rating based on all stored ratings
+     * @param strBookId - the book's unique identifier
+     */
+    private void updateBookRating(String strBookId) 
     {
-        int total = 0, cnt = 0;
-        for (Rating r : ratingList) 
+        int intTotal = 0;  // Sum of ratings
+        int intCount = 0;  // Number of ratings
+
+        for (Rating rating : ratingList) 
         {
-            if (r.getStrBookId().equals(bookId)) 
+            if (rating.getStrBookId().equals(strBookId)) 
             {
-                total += r.getIntRating();
-                cnt++;
+                intTotal += rating.getIntRating();  // Accumulate
+                intCount++;
             }
         }
-        if (cnt > 0) 
+
+        if (intCount > 0)  // Avoid division by zero
         {
-            Book book = bookDatabase.findBookById(bookId);
+            Book book = bookDatabase.findBookById(strBookId);
+
             if (book != null) 
             {
-                double avg = (double) total / cnt;
-                book.setDblAvgRating(Math.round(avg * 10) / 10.0);
-                bookDatabase.saveBooks();
+                double dblAvg = (double) intTotal / intCount;  // Compute average
+                book.setDblAvgRating(Math.round(dblAvg * 10) / 10.0);  // Round one decimal
+                bookDatabase.saveBooks();  // Persist updated book data
             }
         }
     }
